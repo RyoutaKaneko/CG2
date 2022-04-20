@@ -14,6 +14,11 @@ using namespace DirectX;
 #include <d3dcompiler.h>
 #pragma comment(lib, "d3dcompiler.lib")
 
+#define DIRECTINPUT_VERSION  0x0800 //DirectInputのバージョン指定
+#include <dinput.h>
+#pragma comment(lib,"dinput8.lib")
+#pragma comment(lib,"dxguid.lib")
+
 //ウィンドウプロシージャ
 LRESULT WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 	//メッセージに応じてゲーム固有の処理を行う
@@ -214,6 +219,29 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		UINT64 fenceVal = 0;
 
 		result = device->CreateFence(fenceVal, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
+
+		//Direct Inputの初期化
+		IDirectInput8* directInput = nullptr;
+		result = DirectInput8Create(
+			w.hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8,
+			(void**)&directInput, nullptr
+		);
+		assert(SUCCEEDED(result));
+
+		//キーボードデバイスの生成
+		IDirectInputDevice8* keyboard = nullptr;
+		result = directInput->CreateDevice(GUID_SysKeyboard, &keyboard, NULL);
+		assert(SUCCEEDED(result));
+
+		//入力データの形式セット
+		result = keyboard->SetDataFormat(&c_dfDIKeyboard);//標準形式
+		assert(SUCCEEDED(result));
+
+		//排他制御レベルのセット
+		result = keyboard->SetCooperativeLevel(
+			hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY
+		);
+		assert(SUCCEEDED(result));
 
 		// バックバッファの番号を取得(2つなので0番か1番)
 		UINT bbIndex = swapChain->GetCurrentBackBufferIndex();
@@ -452,6 +480,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 
 		//DirectX毎フレーム処理　ここから
+
+		//キーボード情報の取得開始
+		keyboard->Acquire();
+		//全キーの入力状態を取得する
+		BYTE key[256] = {};
+		keyboard->GetDeviceState(sizeof(key), key);
 		
 		//バックバッファの番号を取得(2つなので0番か1番)
 		UINT bbIndex = swapChain->GetCurrentBackBufferIndex();
@@ -538,6 +572,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//再びコマンドリストを溜める準備
 		result = commandList->Reset(commandAllocator, nullptr);
 		assert(SUCCEEDED(result));
+
+		//SPACEを押したら画面の色変更
+		if (key[DIK_SPACE]) {
+			clearColor[0] = 1;
+		}
 
 
 		//DirectX毎フレーム処理　ここまで
