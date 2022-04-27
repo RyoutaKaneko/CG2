@@ -141,6 +141,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="KeyInput.cpp" />
+    <ClCompile Include="WinInput.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="BasicVS.hlsl">
@@ -158,6 +159,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="KeyInput.h" />
+    <ClInclude Include="WinInput.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
