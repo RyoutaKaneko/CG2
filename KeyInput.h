@@ -8,9 +8,11 @@ class KeyInput {
 public:
 	IDirectInput8* directInput;
 	IDirectInputDevice8* keyboard;
+	bool isPush;
 
 public:
 	KeyInput();
 	~KeyInput();
 	void Iniatialize(WNDCLASSEX w,HRESULT result,HWND hwnd);
+	float TPushSpace(BYTE key[]);
 };
