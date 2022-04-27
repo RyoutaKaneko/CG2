@@ -4,6 +4,7 @@
 KeyInput::KeyInput() {
 	directInput = nullptr;
 	keyboard = nullptr;
+	isPush = false;
 }
 
 KeyInput::~KeyInput() {};
@@ -32,3 +33,18 @@ void KeyInput::Iniatialize(WNDCLASSEX w, HRESULT result, HWND hwnd) {
 	);
 	assert(SUCCEEDED(result));
 }
+
+//float TPushSpace(BYTE key[]) {
+//	if (key[DIK_SPACE]) {
+//		if (isPush == true) {
+//			return false;
+//		}
+//		else {
+//			isPush = true;
+//			return true;
+//		}
+//	}
+//	else {
+//		isPush = false;
+//	}
+//}
