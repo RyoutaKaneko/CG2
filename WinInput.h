@@ -15,6 +15,7 @@ public:
 public:
 	WinInput();
 	~WinInput();
+	void create();
 	//ウィンドウプロシージャ
 	static LRESULT WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 };
