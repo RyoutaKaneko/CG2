@@ -67,6 +67,9 @@ public:
 	//バックバッファ
 	std::vector<ID3D12Resource*> backBuffers;
 
+	// 頂点データ
+	std::vector<XMFLOAT3> vertices;
+
 	// 頂点バッファの設定
 	D3D12_HEAP_PROPERTIES heapProp{}; // ヒープ設定
 	// リソース設定
