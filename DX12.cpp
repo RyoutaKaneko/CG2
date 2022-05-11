@@ -132,6 +132,38 @@ void DX12::DXInput() {
 	//フェンス
 	result = device->CreateFence(fenceVal, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
 
+	//描画関係初期化
+	GraphInput();
+
+	// 命令のクローズ
+	result = commandList->Close();
+	assert(SUCCEEDED(result));
+	// コマンドリストの実行
+	ID3D12CommandList* commandLists[] = { commandList };
+	commandQueue->ExecuteCommandLists(1, commandLists);
+	// 画面に表示するバッファをフリップ(裏表の入替え)
+	result = swapChain->Present(1, 0);
+	assert(SUCCEEDED(result));
+
+	// コマンドの実行完了を待つ
+	commandQueue->Signal(fence, ++fenceVal);
+	if (fence->GetCompletedValue() != fenceVal) {
+		HANDLE event = CreateEvent(nullptr, false, false, nullptr);
+		fence->SetEventOnCompletion(fenceVal, event);
+		WaitForSingleObject(event, INFINITE);
+		CloseHandle(event);
+	}
+	// キューをクリア
+	result = commandAllocator->Reset();
+	assert(SUCCEEDED(result));
+	// 再びコマンドリストを貯める準備
+	result = commandList->Reset(commandAllocator, nullptr);
+	assert(SUCCEEDED(result));
+
+}
+
+//描画初期化
+void DX12::GraphInput() {
 	// バックバッファの番号を取得(2つなので0番か1番)
 	UINT bbIndex = swapChain->GetCurrentBackBufferIndex();
 	// 1.リソースバリアで書き込み可能に変更
@@ -158,7 +190,7 @@ void DX12::DXInput() {
 	{ -0.5f, +0.5f, 0.0f }, // 左上
 	{ +0.5f, -0.5f, 0.0f }, // 右下
 	};
-	
+
 	// 頂点データ全体のサイズ = 頂点データ一つ分のサイズ * 頂点データの要素数
 	UINT sizeVB = static_cast<UINT>(sizeof(XMFLOAT3) * 3);
 
@@ -258,7 +290,7 @@ void DX12::DXInput() {
 	}, // (1行で書いたほうが見やすい)
 	};
 
-	
+
 
 	// シェーダーの設定
 	pipelineDesc.VS.pShaderBytecode = vsBlob->GetBufferPointer();
@@ -316,8 +348,18 @@ void DX12::DXInput() {
 	pipelineDesc.SampleDesc.Count = 1; // 1ピクセルにつき1回サンプリング
 
 
+	//ルートパラメータの設定
+	D3D12_ROOT_PARAMETER rootParam = {};
+	rootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;//定数バッファビュー
+	rootParam.Descriptor.ShaderRegister = 0;//定数バッファ番号
+	rootParam.Descriptor.RegisterSpace = 0;//デフォルト値
+	rootParam.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;//全てのシェーダから見える
+
 	// ルートシグネチャの設定
 	rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+	rootSignatureDesc.pParameters = &rootParam;//ルートパラメータの先頭アドレス
+	rootSignatureDesc.NumParameters = 1;//ルートパラメータ数
+
 
 	result = D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1_0,
 		&rootSigBlob, &errorBlob);
@@ -341,17 +383,60 @@ void DX12::DXInput() {
 	barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT; // 表示状態へ
 	commandList->ResourceBarrier(1, &barrierDesc);
 
-	// 命令のクローズ
+	//ヒープ設定
+	D3D12_HEAP_PROPERTIES cbHeapProp{};
+	cbHeapProp.Type = D3D12_HEAP_TYPE_UPLOAD;								//GPUへの転送
+	//リソース設定
+	D3D12_RESOURCE_DESC cbResourceDesc{};
+	cbResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	cbResourceDesc.Width = (sizeof(ConstBufferDataMaterial) + 0xff) & ~0xff;//256バイトアライメント
+	cbResourceDesc.Height = 1;
+	cbResourceDesc.DepthOrArraySize = 1;
+	cbResourceDesc.MipLevels = 1;
+	cbResourceDesc.SampleDesc.Count = 1;
+	cbResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+	
+	//定数バッファの生成
+	result = device->CreateCommittedResource(
+		&cbHeapProp,
+		D3D12_HEAP_FLAG_NONE,
+		&cbResourceDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&constBuffMaterial)
+	);
+	assert(SUCCEEDED(result));
+
+	//定数バッファのマッピング
+	ConstBufferDataMaterial* constMapMaterial = nullptr;
+	result = constBuffMaterial->Map(0, nullptr, (void**)&constMapMaterial);//マッピング
+	assert(SUCCEEDED(result));
+
+	//値を書き込むと自動的に転送される
+	constMapMaterial->color = XMFLOAT4(1, 0, 0, 0.5);	//半透明の赤
+}
+
+//DirectX更新処理
+void DX12::DXUpdate() {
+	//DirectX毎フレーム処理　ここから
+
+	//描画更新
+	GraphUpdate();
+	
+
+	//命令のクローズ
 	result = commandList->Close();
 	assert(SUCCEEDED(result));
-	// コマンドリストの実行
+	//コマンドリストの実行
 	ID3D12CommandList* commandLists[] = { commandList };
 	commandQueue->ExecuteCommandLists(1, commandLists);
-	// 画面に表示するバッファをフリップ(裏表の入替え)
+
+	//画面に表示するバッファフリップ(裏表の入れ替え)
 	result = swapChain->Present(1, 0);
 	assert(SUCCEEDED(result));
 
-	// コマンドの実行完了を待つ
+	//コマンドの実行完了を待つ
 	commandQueue->Signal(fence, ++fenceVal);
 	if (fence->GetCompletedValue() != fenceVal) {
 		HANDLE event = CreateEvent(nullptr, false, false, nullptr);
@@ -359,19 +444,18 @@ void DX12::DXInput() {
 		WaitForSingleObject(event, INFINITE);
 		CloseHandle(event);
 	}
-	// キューをクリア
+
+	//キューをクリア
 	result = commandAllocator->Reset();
 	assert(SUCCEEDED(result));
-	// 再びコマンドリストを貯める準備
+	//再びコマンドリストを溜める準備
 	result = commandList->Reset(commandAllocator, nullptr);
 	assert(SUCCEEDED(result));
 
 }
 
-void DX12::DXUpdate() {
-	//DirectX毎フレーム処理　ここから
-
-
+//描画更新
+void DX12::GraphUpdate() {
 	//バックバッファの番号を取得(2つなので0番か1番)
 	UINT bbIndex = swapChain->GetCurrentBackBufferIndex();
 
@@ -423,6 +507,9 @@ void DX12::DXUpdate() {
 
 	// 頂点バッファビューの設定コマンド
 	commandList->IASetVertexBuffers(0, 1, &vbView);
+	//定数バッファビュー(CBV)の設定コマンド
+	commandList->SetGraphicsRootConstantBufferView(0, constBuffMaterial->GetGPUVirtualAddress());
+	//描画コマンド
 	commandList->DrawInstanced(3, 1, 0, 0); // 全ての頂点を使って描画
 	// 4.描画コマンド　ここまで
 
@@ -430,33 +517,4 @@ void DX12::DXUpdate() {
 	barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;//表示状態から
 	barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;//描画状態へ
 	commandList->ResourceBarrier(1, &barrierDesc);
-
-	//命令のクローズ
-	result = commandList->Close();
-	assert(SUCCEEDED(result));
-	//コマンドリストの実行
-	ID3D12CommandList* commandLists[] = { commandList };
-	commandQueue->ExecuteCommandLists(1, commandLists);
-
-	//画面に表示するバッファフリップ(裏表の入れ替え)
-	result = swapChain->Present(1, 0);
-	assert(SUCCEEDED(result));
-
-	//コマンドの実行完了を待つ
-	commandQueue->Signal(fence, ++fenceVal);
-	if (fence->GetCompletedValue() != fenceVal) {
-		HANDLE event = CreateEvent(nullptr, false, false, nullptr);
-		fence->SetEventOnCompletion(fenceVal, event);
-		WaitForSingleObject(event, INFINITE);
-		CloseHandle(event);
-	}
-
-	//キューをクリア
-	result = commandAllocator->Reset();
-	assert(SUCCEEDED(result));
-	//再びコマンドリストを溜める準備
-	result = commandList->Reset(commandAllocator, nullptr);
-	assert(SUCCEEDED(result));
-
-	
 }

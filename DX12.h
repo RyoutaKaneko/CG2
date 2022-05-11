@@ -6,6 +6,7 @@
 #include <string>
 #include "KeyInput.h"
 #include "WinInput.h"
+#include "struct.h"
 
 #pragma comment(lib,"d3d12.lib")
 #pragma comment(lib,"dxgi.lib")
@@ -84,9 +85,12 @@ public:
 	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
 	// ルートシグネチャのシリアライズ
 	ID3DBlob* rootSigBlob = nullptr;
+	ID3D12Resource* constBuffMaterial = nullptr;
 public:
 	DX12();
 	~DX12();
 	void DXInput();
+	void GraphInput();
 	void DXUpdate();
+	void GraphUpdate();
 };
