@@ -27,9 +27,6 @@ WinInput::WinInput() {
 		w.hInstance,			//呼び出しアプリケーションハンドル
 		nullptr					//オプション
 	);
-
-	//ウィンドウを表示状態にする
-	ShowWindow(hwnd, SW_SHOW);
 }
 
 WinInput::~WinInput() {}
@@ -46,4 +43,9 @@ LRESULT WinInput::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) 
 	}
 	//標準のメッセージ処理を行う
 	return DefWindowProc(hwnd, msg, wparam, lparam);
+}
+
+void WinInput::create() {
+	//ウィンドウを表示状態にする
+	ShowWindow(hwnd, SW_SHOW);
 }
