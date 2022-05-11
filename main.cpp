@@ -6,23 +6,15 @@
 
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
-	//コンソールでの文字出力
-	OutputDebugStringA("Hello,DirectX!!/n");
 
 	MSG msg{};//メッセージ
 
 	//Windows初期化
 	WinInput* winInput = new WinInput;
+	KeyInput* keyInput = new KeyInput;
 	DX12* dx12 = new DX12;
-
-	///-----DirectX初期化処理　ここから-----///
-	
 	dx12->DXInput();
-
-	///-----DirectX初期化処理　ここまで-----///
-
-		KeyInput* keyInput = new KeyInput;
-		keyInput->Iniatialize(winInput->w,dx12->result,winInput->hwnd);
+	keyInput->Iniatialize(winInput->w,dx12->result,winInput->hwnd);
 
 	///-----ゲームループ-----///
 	while (true) {
@@ -42,10 +34,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		BYTE key[256] = {};
 		keyInput->keyboard->GetDeviceState(sizeof(key), key);
 
-		//DirectX毎フレーム処理　ここから
 		dx12->DXUpdate();
-
-		//DirectX毎フレーム処理　ここまで
 	}
 
 	//ウィンドウクラスを登録解除
@@ -55,7 +44,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	delete keyInput;
 	delete winInput;
-
 
 	return 0;
 }
