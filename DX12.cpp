@@ -185,14 +185,15 @@ void DX12::GraphInput() {
 	// 4.描画コマンドここから
 
 	// 頂点データ
-	XMFLOAT3 vertices[] = {
-	{ -0.5f, -0.5f, 0.0f }, // 左下
-	{ -0.5f, +0.5f, 0.0f }, // 左上
-	{ +0.5f, -0.5f, 0.0f }, // 右下
-	};
+	vertices = std::vector<XMFLOAT3>(
+		{
+			{ -0.5f, -0.5f, 0.0f }, // 左下
+			{ -0.5f, +0.5f, 0.0f }, // 左上
+			{ +0.5f, -0.5f, 0.0f } // 右下
+		});
 
 	// 頂点データ全体のサイズ = 頂点データ一つ分のサイズ * 頂点データの要素数
-	UINT sizeVB = static_cast<UINT>(sizeof(XMFLOAT3) * 3);
+	UINT sizeVB = static_cast<UINT>(sizeof(XMFLOAT3) * vertices.size());
 
 	// 頂点バッファの設定
 	heapProp.Type = D3D12_HEAP_TYPE_UPLOAD; // GPUへの転送用
@@ -219,7 +220,7 @@ void DX12::GraphInput() {
 	result = vertBuff->Map(0, nullptr, (void**)&vertMap);
 	assert(SUCCEEDED(result));
 	// 全頂点に対して
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < vertices.size(); i++) {
 		vertMap[i] = vertices[i]; // 座標をコピー
 	}
 	// 繋がりを解除
@@ -510,7 +511,7 @@ void DX12::GraphUpdate() {
 	//定数バッファビュー(CBV)の設定コマンド
 	commandList->SetGraphicsRootConstantBufferView(0, constBuffMaterial->GetGPUVirtualAddress());
 	//描画コマンド
-	commandList->DrawInstanced(3, 1, 0, 0); // 全ての頂点を使って描画
+	commandList->DrawInstanced(vertices.size(), 1, 0, 0); // 全ての頂点を使って描画
 	// 4.描画コマンド　ここまで
 
 	// 5.リソースバリアを戻す
