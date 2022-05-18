@@ -195,7 +195,7 @@ void DX12::GraphInput() {
 			{ +0.5f, +0.5f, 0.0f } // 右上
 		});
 
-	uint16_t indices[] = {
+	indices = {
 		0,1,2,//三角形1つ目
 		1,2,3//三角形2つ目
 	};
@@ -226,7 +226,7 @@ void DX12::GraphInput() {
 
 	//インデックスバッファの設定
 	//インデックスデータ全体のサイズ
-	UINT sizeIB = static_cast<UINT>(sizeof(uint16_t) * _countof(indices));
+	UINT sizeIB = static_cast<UINT>(sizeof(uint16_t) * indices.size());
 
 	//リソース設定
 	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
@@ -236,6 +236,32 @@ void DX12::GraphInput() {
 	resDesc.MipLevels = 1;
 	resDesc.SampleDesc.Count = 1;
 	resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+	//インデックスバッファの生成
+	ID3D12Resource* indexBuff = nullptr;
+	result = device->CreateCommittedResource(
+		&heapProp,//ヒープ設定
+		D3D12_HEAP_FLAG_NONE,
+		&resDesc,//リソース設定
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&indexBuff)
+	);
+
+	//インデックスバッファをマッピング
+	uint16_t* indexMap = nullptr;
+	result = indexBuff->Map(0, nullptr, (void**)&indexMap);
+	//全インデックスに対して
+	for (int i = 0; i < indices.size(); i++) {
+		indexMap[i] = indices[i];//インデックスをコピー
+	}
+	//マッピングを解除
+	indexBuff->Unmap(0, nullptr);
+
+	//インデックスバッファビューの作成
+	ibView.BufferLocation = indexBuff->GetGPUVirtualAddress();
+	ibView.Format = DXGI_FORMAT_R16_UINT;
+	ibView.SizeInBytes = sizeIB;
 
 	// GPU上のバッファに対応した仮想メモリ(メインメモリ上)を取得
 	result = vertBuff->Map(0, nullptr, (void**)&vertMap);
@@ -499,6 +525,9 @@ void DX12::GraphUpdate() {
 	commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
 
 	// 4.描画コマンド　ここから
+	//インデックスバッファビューの設定コマンド
+	commandList->IASetIndexBuffer(&ibView);
+
 	// 描画コマンド
 	// ビューポート設定コマンド
 	D3D12_VIEWPORT viewport{};
@@ -536,7 +565,7 @@ void DX12::GraphUpdate() {
 	//定数バッファビュー(CBV)の設定コマンド
 	commandList->SetGraphicsRootConstantBufferView(0, constBuffMaterial->GetGPUVirtualAddress());
 	//描画コマンド
-	commandList->DrawInstanced(vertices.size(), 1, 0, 0); // 全ての頂点を使って描画
+	commandList->DrawIndexedInstanced(indices.size(), 1, 0, 0, 0, );
 	// 4.描画コマンド　ここまで
 
 	// 5.リソースバリアを戻す
