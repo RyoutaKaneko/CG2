@@ -68,8 +68,8 @@ public:
 	std::vector<ID3D12Resource*> backBuffers;
 
 	// 頂点データ
-	std::vector<XMFLOAT3> vertices;
-	std::vector<int> indices;
+	std::vector<Vertex> vertices;
+	std::vector<unsigned short> indices;
 
 	// 頂点バッファの設定
 	D3D12_HEAP_PROPERTIES heapProp{}; // ヒープ設定
@@ -81,7 +81,7 @@ public:
 	
 	ID3D12Resource* vertBuff = nullptr;
 
-	XMFLOAT3* vertMap = nullptr;
+	Vertex* vertMap = nullptr;
 
 	// 頂点バッファビューの作成
 	D3D12_VERTEX_BUFFER_VIEW vbView{};
