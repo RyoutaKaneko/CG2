@@ -185,14 +185,12 @@ void DX12::GraphInput() {
 	// 4.描画コマンドここから
 
 	// 頂点データ
-	vertices = std::vector<XMFLOAT3>(
+	vertices = std::vector<Vertex>(
 		{
-			{ -0.5f, -0.5f, 0.0f }, // 左下
-			{ -0.5f, +0.5f, 0.0f }, // 左上
-			{ +0.5f, -0.5f, 0.0f }, // 右下
-			{ +0.5f, -0.5f, 0.0f }, // 右下
-			{ -0.5f, +0.5f, 0.0f }, // 左上
-			{ +0.5f, +0.5f, 0.0f } // 右上
+			{{-0.4f,-0.7f,-0.0f},{0.0f,1.0f}},
+			{{-0.4f,+0.7f,0.0f},{0.0f,0.0f}},
+			{{+0.4f,-0.7f,0.0f},{1.0f,1.0f}},
+			{{+0.4f,+0.7f,0.0f},{1.0f,0.0f}},
 		});
 
 	indices = {
@@ -201,7 +199,7 @@ void DX12::GraphInput() {
 	};
 
 	// 頂点データ全体のサイズ = 頂点データ一つ分のサイズ * 頂点データの要素数
-	UINT sizeVB = static_cast<UINT>(sizeof(XMFLOAT3) * vertices.size());
+	UINT sizeVB = static_cast<UINT>(sizeof(vertices[0]) * vertices.size());
 
 	// 頂点バッファの設定
 	heapProp.Type = D3D12_HEAP_TYPE_UPLOAD; // GPUへの転送用
@@ -268,7 +266,7 @@ void DX12::GraphInput() {
 	assert(SUCCEEDED(result));
 	// 全頂点に対して
 	for (int i = 0; i < vertices.size(); i++) {
-		vertMap[i] = vertices[i]; // 座標をコピー
+		vertMap[i] =  vertices[i]; // 座標をコピー
 	}
 	// 繋がりを解除
 	vertBuff->Unmap(0, nullptr);
@@ -278,7 +276,7 @@ void DX12::GraphInput() {
 	// 頂点バッファのサイズ
 	vbView.SizeInBytes = sizeVB;
 	// 頂点1つ分のデータサイズ
-	vbView.StrideInBytes = sizeof(XMFLOAT3);
+	vbView.StrideInBytes = sizeof(vertices[0]);
 
 
 	// 頂点シェーダの読み込みとコンパイル
@@ -331,11 +329,19 @@ void DX12::GraphInput() {
 
 	// 頂点レイアウト
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
-	{
-	"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,
-	D3D12_APPEND_ALIGNED_ELEMENT,
-	D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
-	}, // (1行で書いたほうが見やすい)
+		{
+		//xyz座標
+		"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,
+		D3D12_APPEND_ALIGNED_ELEMENT,
+		D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
+		}, // (1行で書いたほうが見やすい)
+
+		{
+		//	uv座標
+			"TEXCOORD",0,DXGI_FORMAT_R32G32_FLOAT,0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0
+		}
 	};
 
 
@@ -565,7 +571,7 @@ void DX12::GraphUpdate() {
 	//定数バッファビュー(CBV)の設定コマンド
 	commandList->SetGraphicsRootConstantBufferView(0, constBuffMaterial->GetGPUVirtualAddress());
 	//描画コマンド
-	commandList->DrawIndexedInstanced(indices.size(), 1, 0, 0, 0, );
+	commandList->DrawIndexedInstanced(indices.size(), 1, 0, 0, 0);
 	// 4.描画コマンド　ここまで
 
 	// 5.リソースバリアを戻す
