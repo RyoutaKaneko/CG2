@@ -75,13 +75,18 @@ public:
 	D3D12_HEAP_PROPERTIES heapProp{}; // ヒープ設定
 	//インデックスバッファ
 	D3D12_INDEX_BUFFER_VIEW ibView{};
-
+	//テクスチャバッファ
+	D3D12_HEAP_PROPERTIES textureHeapProp{};//ヒープ設定
 	// リソース設定
 	D3D12_RESOURCE_DESC resDesc{};
+	D3D12_RESOURCE_DESC textureResourceDesc{};
 	
+	//頂点バッファ
 	ID3D12Resource* vertBuff = nullptr;
-
 	Vertex* vertMap = nullptr;
+
+	//テクスチャバッファ
+	ID3D12Resource* texBuff = nullptr;
 
 	// 頂点バッファビューの作成
 	D3D12_VERTEX_BUFFER_VIEW vbView{};
@@ -93,6 +98,16 @@ public:
 	// ルートシグネチャのシリアライズ
 	ID3DBlob* rootSigBlob = nullptr;
 	ID3D12Resource* constBuffMaterial = nullptr;
+	//デスクリプターヒープ
+	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc{};
+	ID3D12DescriptorHeap* srvHeap = nullptr;
+	//シェーダーリソースビュー
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};//設定構造体
+	//デスクリプタレンジ
+	D3D12_DESCRIPTOR_RANGE descriptorRange{};
+	//テクスチャーサンプラー
+	D3D12_STATIC_SAMPLER_DESC samplerDesc{};
+
 public:
 	DX12();
 	~DX12();
