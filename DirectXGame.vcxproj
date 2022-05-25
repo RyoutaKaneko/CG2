@@ -149,6 +149,7 @@
     <ClCompile Include="Vector2.cpp" />
     <ClCompile Include="DX12.cpp" />
     <ClCompile Include="Vector3.cpp" />
+    <ClCompile Include="Matrix4.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="BasicVS.hlsl">
@@ -171,6 +172,7 @@
     <ClInclude Include="DX12.h" />
     <ClInclude Include="Struct.h" />
     <ClInclude Include="Vector3.h" />
+    <ClInclude Include="Matrix4.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Basic.hlsli" />
