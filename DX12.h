@@ -17,6 +17,7 @@ using namespace DirectX;
 #include <d3dcompiler.h>
 #pragma comment(lib, "d3dcompiler.lib")
 
+#include <DirectXTex.h>
 
 
 class DX12 {
