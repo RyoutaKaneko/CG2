@@ -528,15 +528,17 @@ void DX12::GraphInput() {
 		result = constBuffTransform->Map(0, nullptr, (void**)&constMapTransform);//マッピング
 		assert(SUCCEEDED(result));
 
-		//単位行列を代入
-		constMapTransform->mat = XMMatrixIdentity();
-		constMapTransform->mat.r[0].m128_f32[0] = 2.0f / winInput->window_width;
-		constMapTransform->mat.r[1].m128_f32[1] = -2.0f / winInput->window_height;
-		//座標を左上に合わせる
-		constMapTransform->mat.r[3].m128_f32[0] = -1.0f;
-		constMapTransform->mat.r[3].m128_f32[1] = 1.0f;
-	}
+		//2D座標変換		
+		GraphicsMatrix2D(*constMapTransform);
 
+		//平行投影行列の計算
+		constMapTransform->mat = XMMatrixOrthographicOffCenterLH(
+			2.0f / winInput->window_width, -2.0 / winInput->window_height,
+			-1.0, 1.0,
+			0.0f, 1.0f
+		);
+
+	}
 
 	//値を書き込むと自動的に転送される
 	constMapMaterial->color = XMFLOAT4(1, 0, 0, 0.5);	//半透明の赤
@@ -751,4 +753,16 @@ void DX12::GraphUpdate() {
 	barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;//表示状態から
 	barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;//描画状態へ
 	commandList->ResourceBarrier(1, &barrierDesc);
+}
+
+
+//2D座標変換
+void DX12::GraphicsMatrix2D(ConstBufferDataTransform& buff) {
+	//単位行列を代入
+	buff.mat = XMMatrixIdentity();
+	buff.mat.r[0].m128_f32[0] = 2.0f / winInput->window_width;
+	buff.mat.r[1].m128_f32[1] = -2.0f / winInput->window_height;
+	//座標を左上に合わせる
+	buff.mat.r[3].m128_f32[0] = -1.0f;
+	buff.mat.r[3].m128_f32[1] = 1.0f;
 }

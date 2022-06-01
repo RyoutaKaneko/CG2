@@ -120,4 +120,5 @@ public:
 	void DXUpdate();
 	void GraphUpdate();
 	void CreateCb();
+	void GraphicsMatrix2D(ConstBufferDataTransform& mat);
 };
