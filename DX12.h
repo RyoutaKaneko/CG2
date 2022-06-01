@@ -108,6 +108,9 @@ public:
 	D3D12_DESCRIPTOR_RANGE descriptorRange{};
 	//テクスチャーサンプラー
 	D3D12_STATIC_SAMPLER_DESC samplerDesc{};
+	//定数バッファの生成
+	ID3D12Resource* constBuffTransform = nullptr;
+	ConstBufferDataTransform* constMapTransform = nullptr;
 
 public:
 	DX12();
@@ -116,4 +119,5 @@ public:
 	void GraphInput();
 	void DXUpdate();
 	void GraphUpdate();
+	void CreateCb();
 };

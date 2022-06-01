@@ -10,3 +10,8 @@ struct VSOutput {
 	//uv’l
 	float2 uv : TEXCOORD;
 };
+
+//3D•ÏŠ·s—ñ
+cbuffer ConstBufferDataTransform : register(b1) {
+	matrix mat;//3D•ÏŠ·s—ñ
+}
