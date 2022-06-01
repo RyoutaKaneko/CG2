@@ -41,7 +41,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	UnregisterClass(winInput->w.lpszClassName, winInput->w.hInstance);
 
 
-
 	delete keyInput;
 	delete winInput;
 

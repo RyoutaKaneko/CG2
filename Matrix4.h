@@ -19,4 +19,5 @@ public:
 
 	//代入演算子オーバーロード
 	Matrix4& operator*=(const Matrix4& m2);
+	Matrix4 operator*(const Matrix4& m2);
 };

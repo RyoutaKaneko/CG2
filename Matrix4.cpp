@@ -33,3 +33,18 @@ Matrix4& Matrix4::operator*=(const Matrix4& m2) {
 
 	return ans;
 }
+
+Matrix4 Matrix4::operator*(const Matrix4& m2) {
+	Matrix4 ans;
+
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			for (int k = 0; k < 4; k++) {
+				ans.mat[i][j] += mat[i][k] * m2.mat[k][j];
+
+			}
+		}
+	}
+
+	return ans;
+}
