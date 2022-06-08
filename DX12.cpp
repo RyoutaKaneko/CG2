@@ -187,10 +187,10 @@ void DX12::GraphInput() {
 	// 頂点データ
 	vertices = std::vector<Vertex>(
 		{
-			{{0.0f,100.0f,0.0f},{0.0f,1.0f}},
-			{{0.0f,0.0f,0.0f},{0.0f,0.0f}},
-			{{100.0f,100.0f,0.0f},{1.0f,1.0f}},
-			{{100.0f,0.0f,0.0f},{1.0f,0.0f}},
+			{{-50.0f,-50.0f,50.0f},{0.0f,1.0f}},
+			{{-50.0f,50.0f,50.0f},{0.0f,0.0f}},
+			{{50.0f,-50.0f,50.0f},{1.0f,1.0f}},
+			{{50.0f,50.0f,50.0f},{1.0f,0.0f}},
 		});
 
 	indices = {
@@ -528,16 +528,22 @@ void DX12::GraphInput() {
 		result = constBuffTransform->Map(0, nullptr, (void**)&constMapTransform);//マッピング
 		assert(SUCCEEDED(result));
 
-		//2D座標変換		
-		GraphicsMatrix2D(*constMapTransform);
+		////2D座標変換		
+		/*GraphicsMatrix2D(*constMapTransform);*/
 
-		//平行投影行列の計算
-		constMapTransform->mat = XMMatrixOrthographicOffCenterLH(
-			2.0f / winInput->window_width, -2.0 / winInput->window_height,
-			-1.0, 1.0,
+		////平行投影行列の計算
+		/*constMapTransform->mat = XMMatrixOrthographicOffCenterLH(
+			0.0f, winInput->window_width,
+			winInput->window_height, 0.0f,
 			0.0f, 1.0f
-		);
+		);*/
 
+		//透視投影行列の計算
+		constMapTransform->mat = XMMatrixPerspectiveFovLH(
+			XMConvertToRadians(45.0f),									//上下画角45度
+			(float)winInput->window_width / winInput->window_height,	//アスペクト比(画面横幅 / 画面立幅)
+			0.1f, 1000.0f												//前端 奥端
+		);
 	}
 
 	//値を書き込むと自動的に転送される

@@ -27,8 +27,12 @@ float Vector3::dot(const Vector3& v)const {
 	return(x * v.x) + (y * v.y) + (z * v.z);
 }
 
-float Vector3::cross(const Vector3& v)const {
-	return(y * v.z) - (z * v.y), (z * v.x) - (x * v.z), (x * v.y) - (y * v.x);
+Vector3 Vector3::cross(const Vector3& v)const {
+	Vector3 ans;
+
+	ans = { (y * v.z) - (z * v.y),(z * v.x) - (x * v.z), (x * v.y) - (y * v.x) };
+
+	return ans;
 }
 
 Vector3 Vector3::operator+()const {
