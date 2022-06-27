@@ -7,6 +7,8 @@
 #include "KeyInput.h"
 #include "WinInput.h"
 #include "struct.h"
+#include "Matrix4.h"
+#include "Vector3.h"
 
 #pragma comment(lib,"d3d12.lib")
 #pragma comment(lib,"dxgi.lib")
@@ -111,6 +113,17 @@ public:
 	//定数バッファの生成
 	ID3D12Resource* constBuffTransform = nullptr;
 	ConstBufferDataTransform* constMapTransform = nullptr;
+
+	//ビュー変換行列
+	XMMATRIX matview;
+	XMFLOAT3 eye;
+	XMFLOAT3 target;
+	XMFLOAT3 up;
+
+	//射影変換行列
+	XMMATRIX matProjection;
+
+	float angle;
 
 public:
 	DX12();

@@ -2,7 +2,10 @@
 
 //コンストラクタ
 DX12::DX12() {
-
+	eye = { 0,0,-100 };
+	target = { 0,0,0 };
+	up = { 0,1,0 };
+	angle = 0.0f;
 }
 
 //デストラクタ
@@ -187,10 +190,10 @@ void DX12::GraphInput() {
 	// 頂点データ
 	vertices = std::vector<Vertex>(
 		{
-			{{-50.0f,-50.0f,50.0f},{0.0f,1.0f}},
-			{{-50.0f,50.0f,50.0f},{0.0f,0.0f}},
-			{{50.0f,-50.0f,50.0f},{1.0f,1.0f}},
-			{{50.0f,50.0f,50.0f},{1.0f,0.0f}},
+			{{-50.0f,-50.0f,0.0f},{0.0f,1.0f}},
+			{{-50.0f,50.0f,0.0f},{0.0f,0.0f}},
+			{{50.0f,-50.0f,0.0f},{1.0f,1.0f}},
+			{{50.0f,50.0f,0.0f},{1.0f,0.0f}},
 		});
 
 	indices = {
@@ -480,7 +483,8 @@ void DX12::GraphInput() {
 	cbResourceDesc.SampleDesc.Count = 1;
 	cbResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
-	
+	matview = XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&target), XMLoadFloat3(&up));
+
 	//定数バッファの生成
 	result = device->CreateCommittedResource(
 		&cbHeapProp,
@@ -538,12 +542,22 @@ void DX12::GraphInput() {
 			0.0f, 1.0f
 		);*/
 
-		//透視投影行列の計算
-		constMapTransform->mat = XMMatrixPerspectiveFovLH(
-			XMConvertToRadians(45.0f),									//上下画角45度
-			(float)winInput->window_width / winInput->window_height,	//アスペクト比(画面横幅 / 画面立幅)
-			0.1f, 1000.0f												//前端 奥端
-		);
+		////透視投影行列の計算
+		//constMapTransform->mat = XMMatrixPerspectiveFovLH(
+		//	XMConvertToRadians(45.0f),									//上下画角45度
+		//	(float)winInput->window_width / winInput->window_height,	//アスペクト比(画面横幅 / 画面立幅)
+		//	0.1f, 1000.0f												//前端 奥端
+		//);
+
+		matProjection =
+			XMMatrixPerspectiveFovLH(
+				XMConvertToRadians(45.0f),									
+				(float)winInput->window_width / winInput->window_height,	
+				0.1f, 1000.0f												
+			);
+
+		//定数バッファに転送
+		constMapTransform->mat = matview * matProjection;
 	}
 
 	//値を書き込むと自動的に転送される
@@ -678,6 +692,18 @@ void DX12::DXUpdate() {
 	result = commandList->Reset(commandAllocator, nullptr);
 	assert(SUCCEEDED(result));
 
+
+	if (keyInput->key[DIK_D] || keyInput->key[DIK_A]) {
+		if (keyInput->key[DIK_D]) { angle += XMConvertToRadians(1.0f); }
+		else if (keyInput->key[DIK_A]) { angle -= XMConvertToRadians(1.0f); }
+
+		//angleラジアンだけY軸周りに回転
+		eye.x = -100 * sinf(angle);
+		eye.z = -100 * cosf(angle);
+	}
+
+	//定数バッファに転送
+	constMapTransform->mat = matview * matProjection;
 }
 
 //描画更新
