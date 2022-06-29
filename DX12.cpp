@@ -657,8 +657,14 @@ void DX12::GraphInput() {
 }
 
 //DirectX更新処理
-void DX12::DXUpdate(BYTE key[256]) {
+void DX12::DXUpdate() {
 	//DirectX毎フレーム処理　ここから
+	
+	keyInput->Iniatialize(winInput->w,result,winInput->hwnd);
+	//キーボード情報の取得開始
+	keyInput->keyboard->Acquire();
+	//全キーの入力状態を取得する
+	keyInput->keyboard->GetDeviceState(sizeof(key), key);
 
 	//描画更新
 	GraphUpdate();

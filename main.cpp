@@ -28,13 +28,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			break;
 		}
 
-		//キーボード情報の取得開始
-		keyInput->keyboard->Acquire();
-		//全キーの入力状態を取得する
-		BYTE key[256] = {};
-		keyInput->keyboard->GetDeviceState(sizeof(key), key);
 
-		dx12->DXUpdate(key);
+		dx12->DXUpdate();
 	}
 
 	//ウィンドウクラスを登録解除
