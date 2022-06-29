@@ -27,6 +27,8 @@ public:
 	WinInput* winInput = new WinInput;
 	KeyInput* keyInput = new KeyInput;
 
+	BYTE key[256] = {};
+
 	ID3D12Debug* debugController;
 
 	HRESULT result;
@@ -144,7 +146,7 @@ public:
 	~DX12();
 	void DXInput();
 	void GraphInput();
-	void DXUpdate(BYTE key[256]);
+	void DXUpdate();
 	void GraphUpdate();
 	void CreateCb();
 	void GraphicsMatrix2D(ConstBufferDataTransform& mat);
