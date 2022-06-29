@@ -34,7 +34,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		BYTE key[256] = {};
 		keyInput->keyboard->GetDeviceState(sizeof(key), key);
 
-		dx12->DXUpdate();
+		dx12->DXUpdate(key);
 	}
 
 	//ウィンドウクラスを登録解除

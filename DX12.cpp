@@ -6,6 +6,7 @@ DX12::DX12() {
 	target = { 0,0,0 };
 	up = { 0,1,0 };
 	angle = 0.0f;
+	position = { 0.0f,0.0f,0.0f };
 }
 
 //デストラクタ
@@ -556,8 +557,29 @@ void DX12::GraphInput() {
 				0.1f, 1000.0f												
 			);
 
+		//単位行列
+		matWorld.r[0] = { 1,0,0,0 };
+		matWorld.r[1] = { 0,1,0,0 };
+		matWorld.r[2] = { 0,0,1,0 };
+		matWorld.r[3] = { 0,0,0,1 };
+
+		//拡縮
+		matScale = XMMatrixScaling(1.0f, 0.5f, 1.0f);
+		matWorld *= matScale;
+
+		//回転
+		matRot = XMMatrixIdentity();
+		matRot *= XMMatrixRotationZ(XMConvertToRadians(0.0f));
+		matRot *= XMMatrixRotationX(XMConvertToRadians(15.0f));
+		matRot *= XMMatrixRotationY(XMConvertToRadians(30.0f));
+		matWorld *= matRot;
+
+		//平行移動
+		matTrans = XMMatrixTranslation(-50.0f, 0, 0);
+		matWorld *= matTrans;
+
 		//定数バッファに転送
-		constMapTransform->mat = matview * matProjection;
+		constMapTransform->mat = matWorld * matview * matProjection;
 	}
 
 	//値を書き込むと自動的に転送される
@@ -658,7 +680,7 @@ void DX12::GraphInput() {
 }
 
 //DirectX更新処理
-void DX12::DXUpdate() {
+void DX12::DXUpdate(BYTE key[256]) {
 	//DirectX毎フレーム処理　ここから
 
 	//描画更新
@@ -693,17 +715,20 @@ void DX12::DXUpdate() {
 	assert(SUCCEEDED(result));
 
 
-	if (keyInput->key[DIK_D] || keyInput->key[DIK_A]) {
-		if (keyInput->key[DIK_D]) { angle += XMConvertToRadians(1.0f); }
-		else if (keyInput->key[DIK_A]) { angle -= XMConvertToRadians(1.0f); }
+	if (key[DIK_D] || key[DIK_A]) {
+		if (key[DIK_D]) { angle += XMConvertToRadians(1.0f); }
+		else if (key[DIK_A]) { angle -= XMConvertToRadians(1.0f); }
 
 		//angleラジアンだけY軸周りに回転
 		eye.x = -100 * sinf(angle);
 		eye.z = -100 * cosf(angle);
+
+		//ビュー変換行列を作り直す
+		matview = XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&target), XMLoadFloat3(&up));
 	}
 
-	//定数バッファに転送
-	constMapTransform->mat = matview * matProjection;
+	////定数バッファに転送
+	//constMapTransform->mat = matview * matProjection;
 }
 
 //描画更新

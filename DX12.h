@@ -122,6 +122,16 @@ public:
 
 	//射影変換行列
 	XMMATRIX matProjection;
+	//ワールド変換行列
+	XMMATRIX matWorld;
+	//スケーリング
+	XMMATRIX matScale;
+	//平行移動
+	XMMATRIX matTrans;
+	//回転
+	XMMATRIX matRot;
+	//座標
+	XMFLOAT3 position;
 
 	float angle;
 
@@ -130,7 +140,7 @@ public:
 	~DX12();
 	void DXInput();
 	void GraphInput();
-	void DXUpdate();
+	void DXUpdate(BYTE key[256]);
 	void GraphUpdate();
 	void CreateCb();
 	void GraphicsMatrix2D(ConstBufferDataTransform& mat);
