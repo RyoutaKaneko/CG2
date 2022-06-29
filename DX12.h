@@ -132,6 +132,10 @@ public:
 	XMMATRIX matRot;
 	//座標
 	XMFLOAT3 position;
+	//回転角
+	XMFLOAT3 rotation;
+	//スケーリング倍率
+	XMFLOAT3 scale;
 
 	float angle;
 

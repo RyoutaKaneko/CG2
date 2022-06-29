@@ -7,6 +7,8 @@ DX12::DX12() {
 	up = { 0,1,0 };
 	angle = 0.0f;
 	position = { 0.0f,0.0f,0.0f };
+	rotation = { 0.0f,0.0f,0.0f };
+	scale = { 1.0f,1.0f,1.0f };
 }
 
 //デストラクタ
@@ -529,7 +531,6 @@ void DX12::GraphInput() {
 		assert(SUCCEEDED(result));
 
 		//定数バッファのマッピング
-		ConstBufferDataTransform* constMapTransform = nullptr;
 		result = constBuffTransform->Map(0, nullptr, (void**)&constMapTransform);//マッピング
 		assert(SUCCEEDED(result));
 
@@ -556,30 +557,6 @@ void DX12::GraphInput() {
 				(float)winInput->window_width / winInput->window_height,	
 				0.1f, 1000.0f												
 			);
-
-		//単位行列
-		matWorld.r[0] = { 1,0,0,0 };
-		matWorld.r[1] = { 0,1,0,0 };
-		matWorld.r[2] = { 0,0,1,0 };
-		matWorld.r[3] = { 0,0,0,1 };
-
-		//拡縮
-		matScale = XMMatrixScaling(1.0f, 0.5f, 1.0f);
-		matWorld *= matScale;
-
-		//回転
-		matRot = XMMatrixIdentity();
-		matRot *= XMMatrixRotationZ(XMConvertToRadians(0.0f));
-		matRot *= XMMatrixRotationX(XMConvertToRadians(15.0f));
-		matRot *= XMMatrixRotationY(XMConvertToRadians(30.0f));
-		matWorld *= matRot;
-
-		//平行移動
-		matTrans = XMMatrixTranslation(-50.0f, 0, 0);
-		matWorld *= matTrans;
-
-		//定数バッファに転送
-		constMapTransform->mat = matWorld * matview * matProjection;
 	}
 
 	//値を書き込むと自動的に転送される
@@ -727,8 +704,37 @@ void DX12::DXUpdate(BYTE key[256]) {
 		matview = XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&target), XMLoadFloat3(&up));
 	}
 
-	////定数バッファに転送
-	//constMapTransform->mat = matview * matProjection;
+	if (key[DIK_UP] || key[DIK_DOWN] || key[DIK_RIGHT] || key[DIK_LEFT]) {
+		if (key[DIK_UP]) { position.z += 1.0f; }
+		else if (key[DIK_DOWN]) { position.z -= 1.0f; }
+		if (key[DIK_RIGHT]) { position.x += 1.0f; }
+		else if (key[DIK_LEFT]) { position.x -= 1.0f; }
+	}
+
+	//単位行列
+	matWorld.r[0] = { 1,0,0,0 };
+	matWorld.r[1] = { 0,1,0,0 };
+	matWorld.r[2] = { 0,0,1,0 };
+	matWorld.r[3] = { 0,0,0,1 };
+
+	//拡縮
+	matScale = XMMatrixScaling(scale.x, scale.y, scale.z);
+
+	//回転
+	matRot *= XMMatrixRotationZ(rotation.z);
+	matRot *= XMMatrixRotationX(rotation.x);
+	matRot *= XMMatrixRotationY(rotation.y);
+
+	//平行移動
+	matTrans = XMMatrixTranslation(-50.0f, 0, 0);
+
+	matRot = XMMatrixIdentity();
+	matWorld *= matScale;
+	matWorld *= matRot;
+	matWorld *= matTrans;
+
+	//定数バッファに転送
+	constMapTransform->mat = matWorld * matview * matProjection;
 }
 
 //描画更新
