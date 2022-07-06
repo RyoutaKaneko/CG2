@@ -115,6 +115,19 @@ public:
 	//定数バッファの生成
 	ID3D12Resource* constBuffTransform = nullptr;
 	ConstBufferDataTransform* constMapTransform = nullptr;
+	//深度バッファの生成
+	D3D12_RESOURCE_DESC depthResourceDesc{};
+	//深度値用ヒーププロパティ
+	D3D12_HEAP_PROPERTIES depthHeapProp{};
+	//深度値のクリア設定
+	D3D12_CLEAR_VALUE depthClearValue{};
+	//深度バッファの生成
+	ID3D12Resource* depthBuff = nullptr;
+	//深度ビュー用デスクリプターヒープ作成
+	D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc{};
+	ID3D12DescriptorHeap* dsvHeap = nullptr;
+	//深度ビュー作成
+	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
 
 	//ビュー変換行列
 	XMMATRIX matview;
