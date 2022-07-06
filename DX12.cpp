@@ -193,10 +193,10 @@ void DX12::GraphInput() {
 	// 頂点データ
 	vertices = std::vector<Vertex>(
 		{
-			{{-50.0f,-50.0f,0.0f},{0.0f,1.0f}},
-			{{-50.0f,50.0f,0.0f},{0.0f,0.0f}},
-			{{50.0f,-50.0f,0.0f},{1.0f,1.0f}},
-			{{50.0f,50.0f,0.0f},{1.0f,0.0f}},
+			{{-5.0f,-5.0f,0.0f},{0.0f,1.0f}},
+			{{-5.0f,5.0f,0.0f},{0.0f,0.0f}},
+			{{5.0f,-5.0f,0.0f},{1.0f,1.0f}},
+			{{5.0f,5.0f,0.0f},{1.0f,0.0f}},
 		});
 
 	indices = {
@@ -732,7 +732,7 @@ void DX12::DXUpdate() {
 	matRot *= XMMatrixRotationY(rotation.y);
 
 	//平行移動
-	matTrans = XMMatrixTranslation(-50.0f, 0, 0);
+	matTrans = XMMatrixTranslation(position.x, position.y, position.z);
 
 	matRot = XMMatrixIdentity();
 	matWorld *= matScale;
