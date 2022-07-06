@@ -239,56 +239,56 @@ void DX12::GraphInput() {
 	vertices = std::vector<Vertex>(
 		{
 			//前
-			{{-5.0f,-5.0f,-5.0f},{0.0f,1.0f}},
-			{{-5.0f,5.0f,-5.0f},{0.0f,0.0f}},
-			{{5.0f,-5.0f,-5.0f},{1.0f,1.0f}},
-			{{5.0f,5.0f,-5.0f},{1.0f,0.0f}},
+			{{-5.0f,-5.0f,-5.0f},{},{0.0f,1.0f}},
+			{{-5.0f,5.0f,-5.0f},{},{0.0f,0.0f}},
+			{{5.0f,-5.0f,-5.0f},{},{1.0f,1.0f}},
+			{{5.0f,5.0f,-5.0f},{},{1.0f,0.0f}},
 			//後
-			{{-5.0f,-5.0f,5.0f},{0.0f,1.0f}},
-			{{-5.0f,5.0f,5.0f},{0.0f,0.0f}},
-			{{5.0f,-5.0f,5.0f},{1.0f,1.0f}},
-			{{5.0f,5.0f,5.0f},{1.0f,0.0f}},
+			{{-5.0f,-5.0f,5.0f},{},{0.0f,1.0f}},
+			{{-5.0f,5.0f,5.0f},{},{0.0f,0.0f}},
+			{{5.0f,-5.0f,5.0f},{},{1.0f,1.0f}},
+			{{5.0f,5.0f,5.0f},{},{1.0f,0.0f}},
 			//左
-			{{-5.0f,-5.0f,-5.0f},{0.0f,1.0f}},
-			{{-5.0f,-5.0f,5.0f},{0.0f,0.0f}},
-			{{-5.0f,5.0f,-5.0f},{1.0f,1.0f}},
-			{{-5.0f,5.0f,5.0f},{1.0f,0.0f}},
+			{{-5.0f,-5.0f,-5.0f},{},{0.0f,1.0f}},
+			{{-5.0f,-5.0f,5.0f},{},{0.0f,0.0f}},
+			{{-5.0f,5.0f,-5.0f},{},{1.0f,1.0f}},
+			{{-5.0f,5.0f,5.0f},{},{1.0f,0.0f}},
 			//右
-			{{5.0f,-5.0f,-5.0f},{0.0f,1.0f}},
-			{{5.0f,-5.0f,5.0f},{0.0f,0.0f}},
-			{{5.0f,5.0f,-5.0f},{1.0f,1.0f}},
-			{{5.0f,5.0f,5.0f},{1.0f,0.0f}},
+			{{5.0f,-5.0f,-5.0f},{},{0.0f,1.0f}},
+			{{5.0f,-5.0f,5.0f},{},{0.0f,0.0f}},
+			{{5.0f,5.0f,-5.0f},{},{1.0f,1.0f}},
+			{{5.0f,5.0f,5.0f},{},{1.0f,0.0f}},
 			//下
-			{{-5.0f,-5.0f,-5.0f},{0.0f,1.0f}},
-			{{5.0f,-5.0f,-5.0f},{0.0f,0.0f}},
-			{{-5.0f,-5.0f,5.0f},{1.0f,1.0f}},
-			{{5.0f,-5.0f,5.0f},{1.0f,0.0f}},
+			{{-5.0f,-5.0f,-5.0f},{},{0.0f,1.0f}},
+			{{5.0f,-5.0f,-5.0f},{},{0.0f,0.0f}},
+			{{-5.0f,-5.0f,5.0f},{},{1.0f,1.0f}},
+			{{5.0f,-5.0f,5.0f},{},{1.0f,0.0f}},
 			//上
-			{{-5.0f,5.0f,-5.0f},{0.0f,1.0f}},
-			{{5.0f,5.0f,-5.0f},{0.0f,0.0f}},
-			{{-5.0f,5.0f,5.0f},{1.0f,1.0f}},
-			{{5.0f,5.0f,5.0f},{1.0f,0.0f}},
+			{{-5.0f,5.0f,-5.0f},{},{0.0f,1.0f}},
+			{{5.0f,5.0f,-5.0f},{},{0.0f,0.0f}},
+			{{-5.0f,5.0f,5.0f},{},{1.0f,1.0f}},
+			{{5.0f,5.0f,5.0f},{},{1.0f,0.0f}},
 		});
 
 	indices = {
 		//前
 		0,1,2,//三角形1つ目
-		1,2,3,//三角形2つ目
+		2,1,3,//三角形2つ目
 		//後
 		4,5,6,
-		5,6,7,
+		6,5,7,
 		//左
 		8,9,10,
-		9,10,11,
+		10,9,11,
 		//右
 		12,13,14,
-		13,14,15,
+		14,13,15,
 		//下
 		16,17,18,
-		17,18,19,
+		18,17,19,
 		////上
 		20,21,22,
-		21,22,23
+		22,21,23
 	};
 
 	// 頂点データ全体のサイズ = 頂点データ一つ分のサイズ * 頂点データの要素数
@@ -422,19 +422,12 @@ void DX12::GraphInput() {
 
 	// 頂点レイアウト
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
-		{
 		//xyz座標
-		"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,
-		D3D12_APPEND_ALIGNED_ELEMENT,
-		D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
-		}, // (1行で書いたほうが見やすい)
-
-		{
-		//	uv座標
-			"TEXCOORD",0,DXGI_FORMAT_R32G32_FLOAT,0,
-			D3D12_APPEND_ALIGNED_ELEMENT,
-			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0
-		}
+		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}, // (1行で書いたほうが見やすい)
+		//法線ベクトル
+		{"NORMAL",0,DXGI_FORMAT_R32G32B32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
+		//uv座標
+		{"TEXCOORD",0,DXGI_FORMAT_R32G32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0}
 	};
 
 
@@ -449,7 +442,7 @@ void DX12::GraphInput() {
 	pipelineDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK; // 標準設定
 
 	// ラスタライザの設定
-	pipelineDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE; // カリングしない
+	pipelineDesc.RasterizerState.CullMode = D3D12_CULL_MODE_BACK; // カリングしない
 	pipelineDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID; // ポリゴン内塗りつぶし
 	pipelineDesc.RasterizerState.DepthClipEnable = true; // 深度クリッピングを有効に
 
@@ -785,9 +778,13 @@ void DX12::DXUpdate() {
 	assert(SUCCEEDED(result));
 
 
-	if (key[DIK_D] || key[DIK_A]) {
+	if (key[DIK_D] || key[DIK_A] || key[DIK_W] || key[DIK_S]) {
 		if (key[DIK_D]) { angle += XMConvertToRadians(1.0f); }
 		else if (key[DIK_A]) { angle -= XMConvertToRadians(1.0f); }
+		if (key[DIK_W]) { position.y += 1.0f; }
+		else if (key[DIK_S]) {
+			position.y -= 1.0f;
+		}
 
 		//angleラジアンだけY軸周りに回転
 		eye.x = -100 * sinf(angle);

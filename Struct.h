@@ -8,6 +8,7 @@ typedef struct ConstBufferDataMaterial {
 
 typedef struct Vertex {
 	XMFLOAT3 pos;//xyz座標
+	XMFLOAT3 normal; //法線ベクトル
 	XMFLOAT2 uv;//uv座標
 };
 
