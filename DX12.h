@@ -113,8 +113,10 @@ public:
 	//テクスチャーサンプラー
 	D3D12_STATIC_SAMPLER_DESC samplerDesc{};
 	//定数バッファの生成
-	ID3D12Resource* constBuffTransform = nullptr;
-	ConstBufferDataTransform* constMapTransform = nullptr;
+	ID3D12Resource* constBuffTransform0 = nullptr;
+	ConstBufferDataTransform* constMapTransform0 = nullptr;
+	ID3D12Resource* constBuffTransform1 = nullptr;
+	ConstBufferDataTransform* constMapTransform1 = nullptr;
 	//深度バッファの生成
 	D3D12_RESOURCE_DESC depthResourceDesc{};
 	//深度値用ヒーププロパティ
@@ -151,6 +153,16 @@ public:
 	XMFLOAT3 rotation;
 	//スケーリング倍率
 	XMFLOAT3 scale;
+
+
+	//ワールド変換行列
+	XMMATRIX matWorld1;
+	//スケーリング
+	XMMATRIX matScale1;
+	//平行移動
+	XMMATRIX matTrans1;
+	//回転
+	XMMATRIX matRot1;
 
 	float angle;
 
