@@ -631,12 +631,27 @@ void DX12::GraphInput() {
 			&cbResourceDesc,
 			D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr,
-			IID_PPV_ARGS(&constBuffTransform)
+			IID_PPV_ARGS(&constBuffTransform0)
 		);
 		assert(SUCCEEDED(result));
 
 		//定数バッファのマッピング
-		result = constBuffTransform->Map(0, nullptr, (void**)&constMapTransform);//マッピング
+		result = constBuffTransform0->Map(0, nullptr, (void**)&constMapTransform0);//マッピング
+		assert(SUCCEEDED(result));
+
+		//定数バッファの生成(1)
+		result = device->CreateCommittedResource(
+			&cbHeapProp,
+			D3D12_HEAP_FLAG_NONE,
+			&cbResourceDesc,
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			nullptr,
+			IID_PPV_ARGS(&constBuffTransform1)
+		);
+		assert(SUCCEEDED(result));
+
+		//定数バッファのマッピング
+		result = constBuffTransform1->Map(0, nullptr, (void**)&constMapTransform1);//マッピング
 		assert(SUCCEEDED(result));
 
 		////2D座標変換		
@@ -832,24 +847,34 @@ void DX12::DXUpdate() {
 	matWorld.r[2] = { 0,0,1,0 };
 	matWorld.r[3] = { 0,0,0,1 };
 
+	matWorld1 = XMMatrixIdentity();
+
 	//拡縮
 	matScale = XMMatrixScaling(scale.x, scale.y, scale.z);
+	matScale1 = XMMatrixScaling(1.0f, 1.0f, 1.0f);
 
 	//回転
 	matRot *= XMMatrixRotationZ(rotation.z);
 	matRot *= XMMatrixRotationX(rotation.x);
 	matRot *= XMMatrixRotationY(rotation.y);
 
+	matRot1 = XMMatrixRotationY(XM_PI / 4.0f);
+
 	//平行移動
 	matTrans = XMMatrixTranslation(position.x, position.y, position.z);
+
+	matTrans1 = XMMatrixTranslation(-20.0f, 0.0f, 0.0f);
 
 	matRot = XMMatrixIdentity();
 	matWorld *= matScale;
 	matWorld *= matRot;
 	matWorld *= matTrans;
 
+	matWorld1 = matScale1 * matRot1 * matTrans1;
+
 	//定数バッファに転送
-	constMapTransform->mat = matWorld * matview * matProjection;
+	constMapTransform0->mat = matWorld * matview * matProjection;
+	constMapTransform1->mat = matWorld1 * matview * matProjection;
 }
 
 //描画更新
@@ -921,8 +946,12 @@ void DX12::GraphUpdate() {
 	//SRVヒープの先頭にあるSRVをルートパラメータ1番に設定
 	commandList->SetGraphicsRootDescriptorTable(1, srvGpuHandle);
 	//定数バッファビュー(CBV)設定コマンド
-	commandList->SetGraphicsRootConstantBufferView(2, constBuffTransform->GetGPUVirtualAddress());
+	commandList->SetGraphicsRootConstantBufferView(2, constBuffTransform0->GetGPUVirtualAddress());
+	//描画コマンド
+	commandList->DrawIndexedInstanced(indices.size(), 1, 0, 0, 0);
 
+	//定数バッファビュー(CBV)設定コマンド
+	commandList->SetGraphicsRootConstantBufferView(2, constBuffTransform1->GetGPUVirtualAddress());
 	//描画コマンド
 	commandList->DrawIndexedInstanced(indices.size(), 1, 0, 0, 0);
 	// 4.描画コマンド　ここまで
